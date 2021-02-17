@@ -1,0 +1,15 @@
+Timing: 'random_array'
+Average run time of 'random_array' after 5 runs: 0.00195 secs
+
+Timing: 'loop'
+Average run time of 'loop' after 5 runs: 0.04318 secs
+
+Timing: 'snake_loop'
+Average run time of 'snake_loop' after 5 runs: 0.43183 secs
+
+'random_array' is the fastest
+'snake_loop' is the slowest
+'random_array' is 221.15 times faster than 'snake_loop'
+'loop' is 10.00 times faster than 'snake_loop'
+
+Timing performed using: 'time.time'

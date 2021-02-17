@@ -1,0 +1,18 @@
+## Some useful commands
+
+# compile cython programs
+python3 setup.py build_ext --inplace
+
+# development install of package (cd to root dir first)
+pip install --editable .
+
+# uninstall development
+rm -r $(find . -name '*.egg-info')
+# now you can use:
+pip uninstall package_name
+
+# install package (cd to root dir first)
+pip install .
+
+# run tests
+pytest -v

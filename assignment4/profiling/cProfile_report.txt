@@ -1,0 +1,20 @@
+         5189 function calls in 0.431 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.431    0.431 /Users/nicolai/anaconda3/lib/python3.7/cProfile.py:92(run)
+        1    0.000    0.000    0.431    0.431 /Users/nicolai/anaconda3/lib/python3.7/cProfile.py:97(runctx)
+        1    0.000    0.000    0.431    0.431 {built-in method builtins.exec}
+        1    0.001    0.001    0.431    0.431 <string>:1(<module>)
+        1    0.429    0.429    0.431    0.431 /Users/nicolai/gituio/IN3110-nicoha/assignment4/profiling/test_slow_rectangle.py:28(snake_loop)
+        1    0.001    0.001    0.001    0.001 {built-in method numpy.array}
+     5180    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+        1    0.000    0.000    0.000    0.000 {method 'enable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+
+cProfile's 'snake_loop' result is similar to time.time's (see comment in timeit report). 
+cProfile is a useful tool to identify potential bottlenecks in the calls within the function.

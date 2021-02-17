@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>web_visualization &#8212; Visualizing COVID-19 in Norway  documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Visualizing COVID-19 in Norway  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">web_visualization</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for web_visualization</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Web-based visualization of the COVID-19 cases in Norwegian counties made</span>
+<span class="sd">publicly available by the Norwegian Institute of Public Health (NIPH - FHI).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">request</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">static_url_path</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">static_folder</span><span class="o">=</span><span class="s1">&#39;docs/_build/html/&#39;</span><span class="p">)</span>
+
+<span class="c1"># Global variables</span>
+<span class="n">allowed_counties</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all_counties&#39;</span><span class="p">,</span> <span class="s1">&#39;agder&#39;</span><span class="p">,</span> <span class="s1">&#39;innlandet&#39;</span><span class="p">,</span> <span class="s1">&#39;more-og-romsdal&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;nordland&#39;</span><span class="p">,</span> <span class="s1">&#39;oslo&#39;</span><span class="p">,</span> <span class="s1">&#39;rogaland&#39;</span><span class="p">,</span> <span class="s1">&#39;troms-og-finnmark&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;trondelag&#39;</span><span class="p">,</span> <span class="s1">&#39;vestfold-og-telemark&#39;</span><span class="p">,</span> <span class="s1">&#39;vestland&#39;</span><span class="p">,</span> <span class="s1">&#39;viken&#39;</span><span class="p">]</span>
+
+<span class="n">county_repl</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;All Counties&#39;</span><span class="p">,</span> <span class="s1">&#39;Agder&#39;</span><span class="p">,</span> <span class="s1">&#39;Innlandet&#39;</span><span class="p">,</span> <span class="s1">&#39;Møre og Romsdal&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;Nordland&#39;</span><span class="p">,</span> <span class="s1">&#39;Oslo&#39;</span><span class="p">,</span> <span class="s1">&#39;Rogaland&#39;</span><span class="p">,</span> <span class="s1">&#39;Troms og Finnmark&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;Trøndelag&#39;</span><span class="p">,</span> <span class="s1">&#39;Vestfold og Telemark&#39;</span><span class="p">,</span> <span class="s1">&#39;Vestland&#39;</span><span class="p">,</span> <span class="s1">&#39;Viken&#39;</span><span class="p">]</span>
+
+<span class="n">repl_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">allowed_counties</span><span class="p">,</span> <span class="n">county_repl</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="read_data"><a class="viewcode-back" href="../api.html#web_visualization.read_data">[docs]</a><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="s2">&quot;all_counties&quot;</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read COVID-19 cases in Norwegian counties into Pandas DataFrame.</span>
+
+<span class="sd">    Read data of COVID-19 cases in a specified Norwegian county from a</span>
+<span class="sd">    comma-separated values (csv) file provided by the Norwegian Institute of</span>
+<span class="sd">    Public Health (NIPH - FHI) into a Pandas DataFrame. The county can be</span>
+<span class="sd">    specified by the ``county`` keyword argument. The time interval</span>
+<span class="sd">    representation of reported cases can be specifed as either ``daily`` or</span>
+<span class="sd">    ``weekly`` by the ``time_interval`` keyword argument.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    county : str, optional, default ``all_counties``</span>
+<span class="sd">        The county with the reported cases to retrieve and store in DataFrame.</span>
+
+<span class="sd">        **Allowed counties:** ``all_counties``, ``agder``, ``innlandet``,</span>
+<span class="sd">        ``more-og-romsdal``, ``nordland``, ``oslo``, ``rogaland``,</span>
+<span class="sd">        ``troms-og-finnmark``, ``trondelag``, ``vestfold-og-telemark``,</span>
+<span class="sd">        ``vestland``, ``viken``.</span>
+<span class="sd">    time_interval : str, optional, default ``daily``</span>
+<span class="sd">        Time interval representation of the reported cases. Can be either</span>
+<span class="sd">        ``daily`` or ``weekly``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pandas.Dataframe</span>
+<span class="sd">        The reported cases (csv file) is returned as two-dimensional data</span>
+<span class="sd">        structure with labeled axes.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ======</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``county`` or ``time_interval`` is not str.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``county`` is not in allowed counties (see above) or if</span>
+<span class="sd">        ``time_interval`` is not ``daily`` or ``weekly``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">county</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;county&#39; must be str&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_interval</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;time_interval&#39; must be str&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">county</span> <span class="ow">in</span> <span class="n">allowed_counties</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;county&#39; must be one of </span><span class="si">{</span><span class="n">allowed_counties</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">time_interval</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="s2">&quot;weekly&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;time_interval&#39; must be either &#39;daily&#39; or &#39;weekly&#39;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Use default data and keyword arguments</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;csv_files/&quot;</span>
+    <span class="n">shared_filename</span> <span class="o">=</span> <span class="s2">&quot;covid-19-&quot;</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;.csv&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}{</span><span class="n">shared_filename</span><span class="si">}{</span><span class="n">time_interval</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">county</span><span class="si">}{</span><span class="n">extension</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                     <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Dato&quot;</span><span class="p">],</span>
+                     <span class="n">infer_datetime_format</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">dayfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="chart_base"><a class="viewcode-back" href="../api.html#web_visualization.chart_base">[docs]</a><span class="k">def</span> <span class="nf">chart_base</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="s2">&quot;all_counties&quot;</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+               <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create base of Altair Chart for COVID-19 cases in Norwegian counties.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    county : str, optional, default ``all_counties``</span>
+<span class="sd">        The county with the reported cases to retrieve and store in DataFrame.</span>
+
+<span class="sd">        **Allowed counties:** ``all_counties``, ``agder``, ``innlandet``,</span>
+<span class="sd">        ``more-og-romsdal``, ``nordland``, ``oslo``, ``rogaland``,</span>
+<span class="sd">        ``troms-og-finnmark``, ``trondelag``, ``vestfold-og-telemark``,</span>
+<span class="sd">        ``vestland``, ``viken``.</span>
+<span class="sd">    time_interval : str, optional, default ``daily``</span>
+<span class="sd">        Time interval representation of the reported cases. Can be either</span>
+<span class="sd">        ``daily`` or ``weekly``.</span>
+<span class="sd">    start : datetime object, optional, default ``datetime.date(2020, 2, 21)``</span>
+<span class="sd">        Start date of reported cases to represent in Altair Chart. The object</span>
+<span class="sd">        defaults to the date of the outbreak in Norway (Feb 21, 2020).</span>
+<span class="sd">    end : datetime object, optional, default ``datetime.date(2020, 11, 9)``</span>
+<span class="sd">        End date of reported cases to represent in Altair Chart. The object</span>
+<span class="sd">        defaults to the last entry in the provided COVID-19 cases data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    base : altair.Chart</span>
+<span class="sd">        Base of Altair Chart.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time_interval</span> <span class="o">==</span> <span class="s2">&quot;weekly&quot;</span><span class="p">:</span>
+        <span class="c1"># Convert datetime objects to Year-Week Number format</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%V&#39;</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%V&#39;</span><span class="p">)</span>
+
+    <span class="n">source</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Dato&#39;</span><span class="p">)[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    base = alt.Chart(source.reset_index()).encode(</span>
+<span class="sd">        alt.X(&#39;Dato:T&#39;, sort=None, axis=alt.Axis(title=&#39;Date&#39;, format=(&quot;%Y-%V&quot;))))</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">Chart</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="n">alt</span><span class="o">.</span><span class="n">X</span><span class="p">(</span><span class="s1">&#39;Dato:T&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Date&#39;</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">base</span></div>
+
+
+<div class="viewcode-block" id="plot_reported_cases"><a class="viewcode-back" href="../api.html#web_visualization.plot_reported_cases">[docs]</a><span class="k">def</span> <span class="nf">plot_reported_cases</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="s2">&quot;all_counties&quot;</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Altair Chart of reported COVID-19 cases in Norwegian counties.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    county : str, optional, default ``all_counties``</span>
+<span class="sd">        The county with the reported cases to retrieve.</span>
+
+<span class="sd">        **Allowed counties:** ``all_counties``, ``agder``, ``innlandet``,</span>
+<span class="sd">        ``more-og-romsdal``, ``nordland``, ``oslo``, ``rogaland``,</span>
+<span class="sd">        ``troms-og-finnmark``, ``trondelag``, ``vestfold-og-telemark``,</span>
+<span class="sd">        ``vestland``, ``viken``.</span>
+<span class="sd">    time_interval : str, optional, default ``daily``</span>
+<span class="sd">        Time interval representation of the reported cases. Can be either</span>
+<span class="sd">        ``daily`` or ``weekly``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Arbitrary keyword arguments are passed along to ``chart_base()``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bar : altair.Chart</span>
+<span class="sd">        Altair Chart of reported cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="n">chart_base</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># interactive pop-up</span>
+    <span class="n">nearest</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">selection</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;mouseover&#39;</span><span class="p">,</span>
+                            <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Dato&#39;</span><span class="p">],</span> <span class="n">empty</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Altair chart for reported cases</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">mark_bar</span><span class="p">(</span><span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#5276A7&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="n">alt</span><span class="o">.</span><span class="n">Y</span><span class="p">(</span><span class="s1">&#39;Nye tilfeller:Q&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;New cases&#39;</span><span class="p">,</span> <span class="n">titleColor</span><span class="o">=</span><span class="s1">&#39;#5276A7&#39;</span><span class="p">)),</span>
+        <span class="n">tooltip</span><span class="o">=</span><span class="p">[</span><span class="n">alt</span><span class="o">.</span><span class="n">Tooltip</span><span class="p">(</span><span class="s1">&#39;Dato:T&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Date&#39;</span><span class="p">),</span> <span class="n">alt</span><span class="o">.</span><span class="n">Tooltip</span><span class="p">(</span>
+            <span class="s1">&#39;Nye tilfeller:Q&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Reported Cases&#39;</span><span class="p">)],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">repl_dict</span><span class="p">[</span><span class="n">county</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">bar</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;bar.html&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bar</span></div>
+
+
+<div class="viewcode-block" id="plot_cumulative_cases"><a class="viewcode-back" href="../api.html#web_visualization.plot_cumulative_cases">[docs]</a><span class="k">def</span> <span class="nf">plot_cumulative_cases</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="s2">&quot;all_counties&quot;</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Altair Chart of cumulative COVID-19 cases in Norwegian counties.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    county : str, optional, default ``all_counties``</span>
+<span class="sd">        The county with the reported cases to retrieve.</span>
+
+<span class="sd">        **Allowed counties:** ``all_counties``, ``agder``, ``innlandet``,</span>
+<span class="sd">        ``more-og-romsdal``, ``nordland``, ``oslo``, ``rogaland``,</span>
+<span class="sd">        ``troms-og-finnmark``, ``trondelag``, ``vestfold-og-telemark``,</span>
+<span class="sd">        ``vestland``, ``viken``.</span>
+<span class="sd">    time_interval : str, optional, default ``daily``</span>
+<span class="sd">        Time interval representation of the reported cases. Can be either</span>
+<span class="sd">        ``daily`` or ``weekly``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Arbitrary keyword arguments are passed along to ``chart_base()``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    line : altair.Chart</span>
+<span class="sd">        Altair Chart of cumulative cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">chart_base</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">nearest</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">selection</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;mouseover&#39;</span><span class="p">,</span>
+                            <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Dato&#39;</span><span class="p">],</span> <span class="n">empty</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+    <span class="n">line</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">mark_line</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#F18727&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="n">alt</span><span class="o">.</span><span class="n">Y</span><span class="p">(</span><span class="s1">&#39;Kumulativt antall:Q&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Cumulative cases&#39;</span><span class="p">,</span> <span class="n">titleColor</span><span class="o">=</span><span class="s1">&#39;#F18727&#39;</span><span class="p">)),</span>
+        <span class="c1"># tooltip=[&#39;Dato:T&#39;, &#39;Kumulativt antall:Q&#39;],</span>
+        <span class="n">tooltip</span><span class="o">=</span><span class="p">[</span><span class="n">alt</span><span class="o">.</span><span class="n">Tooltip</span><span class="p">(</span><span class="s1">&#39;Dato:T&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Date&#39;</span><span class="p">),</span> <span class="n">alt</span><span class="o">.</span><span class="n">Tooltip</span><span class="p">(</span>
+            <span class="s1">&#39;Kumulativt antall:Q&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Cumulative Cases&#39;</span><span class="p">)],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">properties</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">repl_dict</span><span class="p">[</span><span class="n">county</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">line</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;line.html&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">line</span></div>
+
+
+<div class="viewcode-block" id="plot_both"><a class="viewcode-back" href="../api.html#web_visualization.plot_both">[docs]</a><span class="k">def</span> <span class="nf">plot_both</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="s2">&quot;all_counties&quot;</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create Altair Chart of both reported and cumulative COVID-19 cases in</span>
+<span class="sd">    Norwegian counties.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    county : str, optional, default ``all_counties``</span>
+<span class="sd">        The county with the reported cases to retrieve.</span>
+
+<span class="sd">        **Allowed counties:** ``all_counties``, ``agder``, ``innlandet``,</span>
+<span class="sd">        ``more-og-romsdal``, ``nordland``, ``oslo``, ``rogaland``,</span>
+<span class="sd">        ``troms-og-finnmark``, ``trondelag``, ``vestfold-og-telemark``,</span>
+<span class="sd">        ``vestland``, ``viken``.</span>
+<span class="sd">    time_interval : str, optional, default ``daily``</span>
+<span class="sd">        Time interval representation of the reported cases. Can be either</span>
+<span class="sd">        ``daily`` or ``weekly``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Arbitrary keyword arguments are passed along to ``chart_base()``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    both : altair.Chart</span>
+<span class="sd">        Altair Chart of both reported and cumulative cases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">plot_reported_cases</span><span class="p">(</span>
+        <span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">plot_cumulative_cases</span><span class="p">(</span>
+        <span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">both</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">resolve_scale</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="s1">&#39;independent&#39;</span><span class="p">)</span>
+
+    <span class="n">both</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;both.html&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">both</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../api.html#web_visualization.main">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/home&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;The main /home page serves the ``plot.html`` template&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;plot.html&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../api.html#web_visualization.plot">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/plot.json&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">plot</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;POST requests to /plot.json</span>
+
+<span class="sd">    The response will be the vega chart spec as JSON</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">chart</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chart&quot;</span><span class="p">)</span>
+    <span class="n">county</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span>
+    <span class="n">time_interval</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">chart</span> <span class="o">==</span> <span class="s2">&quot;reported&quot;</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_reported_cases</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">chart</span> <span class="o">==</span> <span class="s2">&quot;cumulative&quot;</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_cumulative_cases</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">chart</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_both</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">county</span><span class="p">,</span> <span class="n">time_interval</span><span class="o">=</span><span class="n">time_interval</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="serve_sphinx_docs"><a class="viewcode-back" href="../api.html#web_visualization.serve_sphinx_docs">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/help&#39;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;path:path&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">serve_sphinx_docs</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;index.html&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The /help page serves the html documentation generated by Sphinx&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">send_static_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># plot_reported_cases(time_interval=&quot;weekly&quot;)</span>
+    <span class="c1"># plot_cumulative_cases(time_interval=&quot;weekly&quot;)</span>
+    <span class="c1"># plot_both(time_interval=&quot;weekly&quot;)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">5001</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Visualizing COVID-19 in Norway  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">web_visualization</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Nicolai Haug.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+Timing: 'python_color2gray'
+Average run time of 'python_color2gray' after 5 runs: 25.60424 secs
+
+Timing performed using: 'time.time'

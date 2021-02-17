@@ -1,0 +1,14 @@
+-Test results 
+
+--Commands run (with LOGFILE="timetrack.txt"):
+
+bash track.sh start
+bash track.sh stop
+[change start date to two days prior manually]
+bash track.sh start "Custom task"
+bash track.sh stop
+bash track.sh log
+
+--Output:
+Task 1: 48:00:34
+Custom task: 00:00:07

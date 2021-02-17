@@ -1,0 +1,11 @@
+Timing: 'python_color2sepia'
+Average run time of 'python_color2sepia' after 2 runs: 58.98956 secs
+
+Timing: 'numpy_color2sepia'
+Average run time of 'numpy_color2sepia' after 2 runs: 0.49180 secs
+
+'numpy_color2sepia' is the fastest
+'python_color2sepia' is the slowest
+'numpy_color2sepia' is 119.95 times faster than 'python_color2sepia'
+
+Timing performed using: 'time.time'

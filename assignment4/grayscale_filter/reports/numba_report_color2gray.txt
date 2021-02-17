@@ -1,0 +1,15 @@
+Timing: 'python_color2gray'
+Average run time of 'python_color2gray' after 5 runs: 26.35017 secs
+
+Timing: 'numpy_color2gray'
+Average run time of 'numpy_color2gray' after 5 runs: 0.10148 secs
+
+Timing: 'numba_color2gray'
+Average run time of 'numba_color2gray' after 5 runs: 0.08033 secs
+
+'numba_color2gray' is the fastest
+'python_color2gray' is the slowest
+'numba_color2gray' is 328.03 times faster than 'python_color2gray'
+'numba_color2gray' is 1.26 times faster than 'numpy_color2gray'
+
+Timing performed using: 'time.time'

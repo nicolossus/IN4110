@@ -1,0 +1,4 @@
+Timing: 'python_color2sepia'
+Average run time of 'python_color2sepia' after 5 runs: 58.68215 secs
+
+Timing performed using: 'time.time'

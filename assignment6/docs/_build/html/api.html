@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Visualization API &#8212; Visualizing COVID-19 in Norway  documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to Assignment 6’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Assignment 6’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Visualizing COVID-19 in Norway  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Web Visualization API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-web_visualization">
+<span id="web-visualization-api"></span><h1>Web Visualization API<a class="headerlink" href="#module-web_visualization" title="Permalink to this headline">¶</a></h1>
+<p>Web-based visualization of the COVID-19 cases in Norwegian counties made
+publicly available by the Norwegian Institute of Public Health (NIPH - FHI).</p>
+<dl class="py function">
+<dt id="web_visualization.read_data">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">read_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all_counties'</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">'daily'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#read_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read COVID-19 cases in Norwegian counties into Pandas DataFrame.</p>
+<p>Read data of COVID-19 cases in a specified Norwegian county from a
+comma-separated values (csv) file provided by the Norwegian Institute of
+Public Health (NIPH - FHI) into a Pandas DataFrame. The county can be
+specified by the <code class="docutils literal notranslate"><span class="pre">county</span></code> keyword argument. The time interval
+representation of reported cases can be specifed as either <code class="docutils literal notranslate"><span class="pre">daily</span></code> or
+<code class="docutils literal notranslate"><span class="pre">weekly</span></code> by the <code class="docutils literal notranslate"><span class="pre">time_interval</span></code> keyword argument.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>county</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>) – The county with the reported cases to retrieve and store in DataFrame.</p>
+<p><strong>Allowed counties:</strong> <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>, <code class="docutils literal notranslate"><span class="pre">agder</span></code>, <code class="docutils literal notranslate"><span class="pre">innlandet</span></code>,
+<code class="docutils literal notranslate"><span class="pre">more-og-romsdal</span></code>, <code class="docutils literal notranslate"><span class="pre">nordland</span></code>, <code class="docutils literal notranslate"><span class="pre">oslo</span></code>, <code class="docutils literal notranslate"><span class="pre">rogaland</span></code>,
+<code class="docutils literal notranslate"><span class="pre">troms-og-finnmark</span></code>, <code class="docutils literal notranslate"><span class="pre">trondelag</span></code>, <code class="docutils literal notranslate"><span class="pre">vestfold-og-telemark</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vestland</span></code>, <code class="docutils literal notranslate"><span class="pre">viken</span></code>.</p>
+</li>
+<li><p><strong>time_interval</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">daily</span></code>) – Time interval representation of the reported cases. Can be either
+<code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – The reported cases (csv file) is returned as two-dimensional data
+structure with labeled axes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.Dataframe</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – If <code class="docutils literal notranslate"><span class="pre">county</span></code> or <code class="docutils literal notranslate"><span class="pre">time_interval</span></code> is not str.</p></li>
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">county</span></code> is not in allowed counties (see above) or if
+    <code class="docutils literal notranslate"><span class="pre">time_interval</span></code> is not <code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.chart_base">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">chart_base</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all_counties'</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">'daily'</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">datetime.date(2020, 2, 21)</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">datetime.date(2020, 11, 9)</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#chart_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.chart_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create base of Altair Chart for COVID-19 cases in Norwegian counties.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>county</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>) – The county with the reported cases to retrieve and store in DataFrame.</p>
+<p><strong>Allowed counties:</strong> <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>, <code class="docutils literal notranslate"><span class="pre">agder</span></code>, <code class="docutils literal notranslate"><span class="pre">innlandet</span></code>,
+<code class="docutils literal notranslate"><span class="pre">more-og-romsdal</span></code>, <code class="docutils literal notranslate"><span class="pre">nordland</span></code>, <code class="docutils literal notranslate"><span class="pre">oslo</span></code>, <code class="docutils literal notranslate"><span class="pre">rogaland</span></code>,
+<code class="docutils literal notranslate"><span class="pre">troms-og-finnmark</span></code>, <code class="docutils literal notranslate"><span class="pre">trondelag</span></code>, <code class="docutils literal notranslate"><span class="pre">vestfold-og-telemark</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vestland</span></code>, <code class="docutils literal notranslate"><span class="pre">viken</span></code>.</p>
+</li>
+<li><p><strong>time_interval</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">daily</span></code>) – Time interval representation of the reported cases. Can be either
+<code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+<li><p><strong>start</strong> (datetime object, optional, default <code class="docutils literal notranslate"><span class="pre">datetime.date(2020,</span> <span class="pre">2,</span> <span class="pre">21)</span></code>) – Start date of reported cases to represent in Altair Chart. The object
+defaults to the date of the outbreak in Norway (Feb 21, 2020).</p></li>
+<li><p><strong>end</strong> (datetime object, optional, default <code class="docutils literal notranslate"><span class="pre">datetime.date(2020,</span> <span class="pre">11,</span> <span class="pre">9)</span></code>) – End date of reported cases to represent in Altair Chart. The object
+defaults to the last entry in the provided COVID-19 cases data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>base</strong> – Base of Altair Chart.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>altair.Chart</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.plot_reported_cases">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_reported_cases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all_counties'</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">'daily'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#plot_reported_cases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.plot_reported_cases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Altair Chart of reported COVID-19 cases in Norwegian counties.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>county</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>) – The county with the reported cases to retrieve.</p>
+<p><strong>Allowed counties:</strong> <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>, <code class="docutils literal notranslate"><span class="pre">agder</span></code>, <code class="docutils literal notranslate"><span class="pre">innlandet</span></code>,
+<code class="docutils literal notranslate"><span class="pre">more-og-romsdal</span></code>, <code class="docutils literal notranslate"><span class="pre">nordland</span></code>, <code class="docutils literal notranslate"><span class="pre">oslo</span></code>, <code class="docutils literal notranslate"><span class="pre">rogaland</span></code>,
+<code class="docutils literal notranslate"><span class="pre">troms-og-finnmark</span></code>, <code class="docutils literal notranslate"><span class="pre">trondelag</span></code>, <code class="docutils literal notranslate"><span class="pre">vestfold-og-telemark</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vestland</span></code>, <code class="docutils literal notranslate"><span class="pre">viken</span></code>.</p>
+</li>
+<li><p><strong>time_interval</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">daily</span></code>) – Time interval representation of the reported cases. Can be either
+<code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments are passed along to <code class="docutils literal notranslate"><span class="pre">chart_base()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>bar</strong> – Altair Chart of reported cases.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>altair.Chart</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.plot_cumulative_cases">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_cumulative_cases</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all_counties'</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">'daily'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#plot_cumulative_cases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.plot_cumulative_cases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Altair Chart of cumulative COVID-19 cases in Norwegian counties.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>county</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>) – The county with the reported cases to retrieve.</p>
+<p><strong>Allowed counties:</strong> <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>, <code class="docutils literal notranslate"><span class="pre">agder</span></code>, <code class="docutils literal notranslate"><span class="pre">innlandet</span></code>,
+<code class="docutils literal notranslate"><span class="pre">more-og-romsdal</span></code>, <code class="docutils literal notranslate"><span class="pre">nordland</span></code>, <code class="docutils literal notranslate"><span class="pre">oslo</span></code>, <code class="docutils literal notranslate"><span class="pre">rogaland</span></code>,
+<code class="docutils literal notranslate"><span class="pre">troms-og-finnmark</span></code>, <code class="docutils literal notranslate"><span class="pre">trondelag</span></code>, <code class="docutils literal notranslate"><span class="pre">vestfold-og-telemark</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vestland</span></code>, <code class="docutils literal notranslate"><span class="pre">viken</span></code>.</p>
+</li>
+<li><p><strong>time_interval</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">daily</span></code>) – Time interval representation of the reported cases. Can be either
+<code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments are passed along to <code class="docutils literal notranslate"><span class="pre">chart_base()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>line</strong> – Altair Chart of cumulative cases.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>altair.Chart</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.plot_both">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot_both</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">county</span><span class="o">=</span><span class="default_value">'all_counties'</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">'daily'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#plot_both"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.plot_both" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Altair Chart of both reported and cumulative COVID-19 cases in
+Norwegian counties.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>county</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>) – The county with the reported cases to retrieve.</p>
+<p><strong>Allowed counties:</strong> <code class="docutils literal notranslate"><span class="pre">all_counties</span></code>, <code class="docutils literal notranslate"><span class="pre">agder</span></code>, <code class="docutils literal notranslate"><span class="pre">innlandet</span></code>,
+<code class="docutils literal notranslate"><span class="pre">more-og-romsdal</span></code>, <code class="docutils literal notranslate"><span class="pre">nordland</span></code>, <code class="docutils literal notranslate"><span class="pre">oslo</span></code>, <code class="docutils literal notranslate"><span class="pre">rogaland</span></code>,
+<code class="docutils literal notranslate"><span class="pre">troms-og-finnmark</span></code>, <code class="docutils literal notranslate"><span class="pre">trondelag</span></code>, <code class="docutils literal notranslate"><span class="pre">vestfold-og-telemark</span></code>,
+<code class="docutils literal notranslate"><span class="pre">vestland</span></code>, <code class="docutils literal notranslate"><span class="pre">viken</span></code>.</p>
+</li>
+<li><p><strong>time_interval</strong> (str, optional, default <code class="docutils literal notranslate"><span class="pre">daily</span></code>) – Time interval representation of the reported cases. Can be either
+<code class="docutils literal notranslate"><span class="pre">daily</span></code> or <code class="docutils literal notranslate"><span class="pre">weekly</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments are passed along to <code class="docutils literal notranslate"><span class="pre">chart_base()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>both</strong> – Altair Chart of both reported and cumulative cases.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>altair.Chart</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.main">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main /home page serves the <code class="docutils literal notranslate"><span class="pre">plot.html</span></code> template</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.plot">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>POST requests to /plot.json</p>
+<p>The response will be the vega chart spec as JSON</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="web_visualization.serve_sphinx_docs">
+<code class="sig-prename descclassname">web_visualization.</code><code class="sig-name descname">serve_sphinx_docs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'index.html'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/web_visualization.html#serve_sphinx_docs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#web_visualization.serve_sphinx_docs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The /help page serves the html documentation generated by Sphinx</p>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Assignment 6’s documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Assignment 6’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Visualizing COVID-19 in Norway  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Web Visualization API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Nicolai Haug.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

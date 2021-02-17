@@ -1,0 +1,8 @@
+Finished 'random_array' in 0.0016 secs (averaged over 5 runs)
+Finished 'loop' in 0.0169 secs (averaged over 5 runs)
+Finished 'snake_loop' in 0.0904 secs (averaged over 5 runs)
+'snake_loop' is slowest
+
+Compared to time.time, 'random_array' and 'loop' are not quite identical but of the same order.
+'snake_loop' however is 4-5 times faster according to timeit. This may caused by several factors
+and averaging over just 5 experiments are not enough to claim this is the general case.
